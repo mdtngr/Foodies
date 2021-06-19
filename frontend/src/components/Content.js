@@ -1,42 +1,49 @@
-import React, {useEffect} from 'react';
+import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import PostCard from './PostCard';
-
+import Grid from '@material-ui/core/Grid';
 
 function Content() {
+	const [ allPost, setAllPost ] = useState([]);
 
-    useEffect(() => {
-     const fetchAllPosts= () => {
-  return axios.get('http://localhost:3001/posts/allPostData')
- .then((res) => {
-    console.log(res['data']);    
-    document.getElementById("contentDiv").insertAdjacentElement = plotPosts(res['data']);
-  })
- .catch((err) => {
-   console.error(err);
-  });
+	useEffect(() => {
+		const fetchAllPosts = () => {
+			axios
+				.get('http://localhost:3001/posts/allPostData')
+				.then((res) => {
+					setAllPost(res.data);
+					console.log(res);
+				})
+				.catch((err) => {
+					console.error(err);
+				});
+		};
+		fetchAllPosts();
+	}, []);
+
+	function renderIt(post) {
+		return (
+			<Grid item md={3}>
+				<PostCard
+					key={post._id}
+					date={post.uploadDate}
+					imageUrl={post.url}
+					imageTitle={post.title}
+					description={post.description}
+					title={post.title}
+					author={post.author}
+					social={post.social}
+				/>
+			</Grid>
+		);
+	}
+
+	return (
+		<div>
+			<Grid container spacing={24}>
+				{allPost.map((post, id) => renderIt(post))}
+			</Grid>
+		</div>
+	);
 }
-fetchAllPosts();
-    }, []);
-
-    function plotPosts(allPosts){
-        
-        const postItems = allPosts.map( post => (
-            <PostCard key={post._id}
-             date="Date here"
-              imageUrl= {post.url}
-               imageTitle= {post.title}
-                description={post.description} />
-        ));
-
-return postItems;
-    }
-   
-    return (
-        <div style={{padding: "10px"}} id="contentDiv" >
-            
-        </div>
-    )
-}
-
-export default Content
+export default Content;
